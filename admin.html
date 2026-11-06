@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin · Bangkok Direct by Ella</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .wrap { max-width: 640px; margin: 0 auto; padding: 20px 16px 48px; }
+    .box { background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px; box-shadow:var(--shadow); margin-bottom:16px; }
+    label { display:block; font-weight:600; font-size:.85rem; margin:10px 0 4px; }
+    input, textarea, select {
+      width:100%; border:1px solid var(--line); border-radius:12px; padding:10px 12px; font:inherit; background:#fff;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .hint { color:var(--muted); font-size:.85rem; margin:8px 0 0; }
+    .warn { background:#FFF4E5; border:1px solid #F5C97A; border-radius:12px; padding:12px; font-size:.9rem; }
+    #login-gate, #app { }
+    .preview-list { display:grid; gap:10px; }
+    .preview-item { display:flex; gap:10px; align-items:center; border:1px solid var(--line); border-radius:12px; padding:8px; }
+    .preview-item img { width:56px; height:72px; object-fit:cover; border-radius:8px; background:var(--pink-soft); }
+    .preview-item strong { font-size:.9rem; display:block; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="brand" style="margin-bottom:18px">
+      <img src="brand/logo.jpg" class="logo" width="48" height="48" alt="" />
+      <div class="brand-text">
+        <h1>ပစ္စည်း ထည့်ရန် (Admin)</h1>
+        <p class="tagline">Bangkok Direct by Ella</p>
+      </div>
+    </header>
+
+    <div id="login-gate" class="box">
+      <label for="pw">စကားဝှက်</label>
+      <input id="pw" type="password" placeholder="admin password" />
+      <p class="hint">ပုံသေ: <code>ella2026</code> — config.js မှာ ပြောင်းနိုင်ပါတယ်</p>
+      <button class="btn btn-primary btn-block" id="login-btn" style="margin-top:12px">ဝင်မယ်</button>
+      <p id="login-err" class="hint" style="color:#c0392b"></p>
+    </div>
+
+    <div id="app" class="hidden">
+      <div class="warn">
+        <strong>GitHub Pages မှာ တိုက်ရိုက် သိမ်းမရပါ။</strong><br/>
+        ဒီစာမျက်နှာက ပစ္စည်းအသစ်ကို ဖုန်း/ကွန်ပျူတာထဲ ယာယီ သိမ်းပြီး <code>products.json</code> ဖိုင် ထုတ်ပေးပါတယ်။
+        အလွယ်ဆုံးနည်း: ပုံ + အမည် + ဈေးကို ဒီ chat ကို ပို့ပါ → တင်ပေးမယ်။
+      </div>
+
+      <div class="box" style="margin-top:16px">
+        <h2 style="margin:0 0 8px;font-size:1.05rem">ပစ္စည်းအသစ်</h2>
+        <label>အမည် (English)</label>
+        <input id="name" placeholder="e.g. Lace Blouse" />
+        <label>မြန်မာ ဖော်ပြချက်</label>
+        <textarea id="caption" placeholder="အရွယ် / အရောင် / လက်လီ လက်ကား …"></textarea>
+        <div class="row">
+          <div>
+            <label>ဈေး (optional)</label>
+            <input id="price" placeholder="e.g. 25,000 MMK" />
+          </div>
+          <div>
+            <label>Sizes</label>
+            <input id="sizes" placeholder="M, L, XL" />
+          </div>
+        </div>
+        <label>Colors</label>
+        <input id="colors" placeholder="Black, Cream …" />
+        <label>Tags</label>
+        <div class="row">
+          <label style="font-weight:500"><input type="checkbox" id="tag-retail" checked /> လက်လီ</label>
+          <label style="font-weight:500"><input type="checkbox" id="tag-wholesale" checked /> လက်ကား</label>
+        </div>
+        <label>ပုံများ (ဖုန်းက ရွေးနိုင် / အများကြီး)</label>
+        <input id="files" type="file" accept="image/*" multiple />
+        <p class="hint">ပုံတွေကို base64 နဲ့ products export ထဲ ထည့်မယ် (သို့) chat ကို ပို့ပါ။</p>
+        <button class="btn btn-primary btn-block" id="add-btn" style="margin-top:14px">စာရင်းထည့်မယ်</button>
+      </div>
+
+      <div class="box">
+        <h2 style="margin:0 0 8px;font-size:1.05rem">ယာယီ စာရင်း (<span id="count">0</span>)</h2>
+        <div id="list" class="preview-list"></div>
+        <button class="btn btn-ghost btn-block" id="export-btn" style="margin-top:12px">products-draft.json ထုတ်မယ်</button>
+        <button class="btn btn-ghost btn-block" id="clear-btn" style="margin-top:8px">ယာယီ စာရင်း ဖျက်မယ်</button>
+      </div>
+
+      <p class="hint"><a href="index.html">← Shop သို့ ပြန်မယ်</a></p>
+    </div>
+  </div>
+  <script src="js/config.js"></script>
+  <script>
+    const PASS = (window.SHOP_ADMIN && window.SHOP_ADMIN.password) || 'ella2026';
+    const KEY = 'bkk_ella_draft_products';
+    const gate = document.getElementById('login-gate');
+    const app = document.getElementById('app');
+
+    function drafts() {
+      try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; }
+    }
+    function saveDrafts(arr) { localStorage.setItem(KEY, JSON.stringify(arr)); render(); }
+
+    function render() {
+      const arr = drafts();
+      document.getElementById('count').textContent = arr.length;
+      document.getElementById('list').innerHTML = arr.map((p,i) =>
+        `<div class="preview-item">
+          <img src="${p.images?.[0] || 'brand/logo.jpg'}" alt="" />
+          <div style="flex:1;min-width:0">
+            <strong>${p.name}</strong>
+            <span style="color:#6B6170;font-size:.8rem">${p.price || ''}</span>
+          </div>
+          <button type="button" data-del="${i}" class="btn btn-ghost" style="padding:6px 10px">ဖျက်</button>
+        </div>`
+      ).join('') || '<p class="hint">စာရင်း ဗလာပါ</p>';
+    }
+
+    document.getElementById('login-btn').onclick = () => {
+      if (document.getElementById('pw').value === PASS) {
+        sessionStorage.setItem('bkk_ella_admin', '1');
+        gate.classList.add('hidden'); app.classList.remove('hidden'); render();
+      } else {
+        document.getElementById('login-err').textContent = 'စကားဝှက် မှားနေပါတယ်';
+      }
+    };
+    if (sessionStorage.getItem('bkk_ella_admin') === '1') {
+      gate.classList.add('hidden'); app.classList.remove('hidden'); render();
+    }
+
+    document.getElementById('list').onclick = (e) => {
+      const b = e.target.closest('[data-del]');
+      if (!b) return;
+      const arr = drafts(); arr.splice(+b.dataset.del, 1); saveDrafts(arr);
+    };
+
+    function readFiles(files) {
+      return Promise.all([...files].map(f => new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = rej;
+        r.readAsDataURL(f);
+      })));
+    }
+
+    document.getElementById('add-btn').onclick = async () => {
+      const name = document.getElementById('name').value.trim();
+      if (!name) return alert('အမည် ထည့်ပါ');
+      const files = document.getElementById('files').files;
+      let images = [];
+      if (files.length) images = await readFiles(files);
+      const tags = [];
+      if (document.getElementById('tag-retail').checked) tags.push('လက်လီ');
+      if (document.getElementById('tag-wholesale').checked) tags.push('လက်ကား');
+      const item = {
+        id: 'local-' + Date.now(),
+        name,
+        caption: document.getElementById('caption').value.trim(),
+        snippet: document.getElementById('caption').value.trim().split('\n').slice(0,2).join('\n'),
+        price: document.getElementById('price').value.trim() || null,
+        sizes: document.getElementById('sizes').value.trim() || null,
+        colors: document.getElementById('colors').value.trim() || null,
+        tags,
+        images,
+        posted_order: 0
+      };
+      const arr = drafts();
+      arr.unshift(item);
+      saveDrafts(arr);
+      document.getElementById('name').value = '';
+      document.getElementById('caption').value = '';
+      document.getElementById('price').value = '';
+      document.getElementById('sizes').value = '';
+      document.getElementById('colors').value = '';
+      document.getElementById('files').value = '';
+      alert('ထည့်ပြီးပါပြီ။ Export လုပ်ပြီး chat ကို ပို့ပါ (သို့) ပုံတွေကို တိုက်ရိုက် ပို့ပါ။');
+    };
+
+    document.getElementById('export-btn').onclick = () => {
+      const blob = new Blob([JSON.stringify({ products: drafts() }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'products-draft.json';
+      a.click();
+    };
+    document.getElementById('clear-btn').onclick = () => {
+      if (confirm('ယာယီ စာရင်း အားလုံး ဖျက်မလား?')) saveDrafts([]);
+    };
+  </script>
+</body>
+</html>

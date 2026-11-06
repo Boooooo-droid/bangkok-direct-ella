@@ -131,8 +131,8 @@
     .then(data => {
       // newest-first: prefer posted_order ascending (1 = newest), else keep array order
       products = (data.products || []).slice().sort((a, b) => {
-        const ao = a.posted_order ?? 9999;
-        const bo = b.posted_order ?? 9999;
+        const ao = a.posted_order ?? 0;
+        const bo = b.posted_order ?? 0;
         return ao - bo;
       });
       render(products);

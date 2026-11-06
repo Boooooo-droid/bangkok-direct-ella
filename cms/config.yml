@@ -1,0 +1,29 @@
+backend:
+  name: git-gateway
+  branch: main
+locale: en
+media_folder: images/uploads
+public_folder: images/uploads
+collections:
+  - name: shop
+    label: "ပစ္စည်းများ (Products)"
+    files:
+      - name: products
+        label: "ပစ္စည်းစာရင်း — အသစ်ထည့်ရန် Add နှိပ်"
+        file: products.json
+        format: json
+        fields:
+          - {name: shop, label: Shop, widget: object, collapsed: true, fields: [{name: name, label: Name, widget: string}, {name: tagline, label: Tagline, widget: string, required: false}, {name: messenger, label: Messenger, widget: string}, {name: logo, label: Logo, widget: string}]}
+          - {name: updated_at, label: Updated, widget: datetime, required: false}
+          - name: products
+            label: "ပစ္စည်းများ"
+            widget: list
+            add_to_top: true
+            summary: "{{fields.name}}"
+            fields:
+              - {name: name, label: "ပစ္စည်းအမည်", widget: string}
+              - {name: caption, label: "စာ (မြန်မာ)", widget: text, required: false}
+              - {name: price, label: "ဈေး (မထည့်လည်းရ)", widget: string, required: false}
+              - {name: sizes, label: "Size", widget: string, required: false}
+              - {name: colors, label: "အရောင်", widget: string, required: false}
+              - {name: images, label: "ပုံများ", widget: list, field: {name: image, label: "ပုံ", widget: image}}

@@ -25,9 +25,37 @@
     ).join('');
   }
 
+  // CMS uploads often only fill caption — derive tags + short text for cards
+  function productTags(p) {
+    const tags = Array.isArray(p.tags) ? p.tags.filter(Boolean) : [];
+    if (tags.length) return tags;
+    const c = p.caption || '';
+    const out = [];
+    if (c.includes('လက်လီ')) out.push('လက်လီ');
+    if (c.includes('လက်ကား')) out.push('လက်ကား');
+    return out;
+  }
+
+  function productSnip(p) {
+    if (p.snippet) return p.snippet;
+    const c = (p.caption || '').replace(/\r/g, '').trim();
+    if (!c) return '';
+    const lines = c.split('\n').map(s => s.trim()).filter(Boolean);
+    // skip title-ish first line; prefer a descriptive line, else join
+    let body = lines.slice(1).join(' ').trim() || lines.join(' ');
+    // keep price lines visible in the short preview when present
+    const priceBits = lines.filter(l => /လက်လီ|လက်ကား|ငွေ|ကျပ်|MMK|฿|บาท/.test(l));
+    if (priceBits.length) {
+      const head = body.replace(priceBits.join(' '), '').trim();
+      body = (head ? head + ' ' : '') + priceBits.join(' · ');
+    }
+    return body.length > 160 ? body.slice(0, 157) + '…' : body;
+  }
+
   function cardHtml(p, idx) {
     const img = (p.images && p.images[0]) || 'brand/logo.jpg';
-    const snip = p.snippet || '';
+    const snip = productSnip(p);
+    const tags = productTags(p);
     return `<article class="card" data-idx="${idx}">
       <div class="card-media" data-open="${idx}">
         <img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy" decoding="async" />
@@ -35,7 +63,7 @@
       </div>
       <div class="card-body">
         <h3>${esc(p.name)}</h3>
-        <div class="tags">${tagsHtml(p.tags)}</div>
+        <div class="tags">${tagsHtml(tags)}</div>
         ${snip ? `<p class="card-snip">${esc(snip)}</p>` : ''}
         <button type="button" class="btn btn-primary" data-order="${idx}">မှာမယ် / Facebook မှာ မေးမယ်</button>
       </div>
@@ -54,7 +82,7 @@
 
   function openSheet(p) {
     document.getElementById('sheet-title').textContent = p.name;
-    document.getElementById('sheet-tags').innerHTML = tagsHtml(p.tags);
+    document.getElementById('sheet-tags').innerHTML = tagsHtml(productTags(p));
     const sizesEl = document.getElementById('sheet-sizes');
     const colorsEl = document.getElementById('sheet-colors');
     sizesEl.textContent = p.sizes || '';

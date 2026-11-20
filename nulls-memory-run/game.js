@@ -234,7 +234,7 @@
 
   function paintCard(canvas, archetype, serial) {
     const w = 560;
-    const h = 760;
+    const h = 840;
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext("2d");
@@ -246,7 +246,6 @@
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
 
-    // grain-ish dots
     ctx.fillStyle = "rgba(255,255,255,0.035)";
     for (let i = 0; i < 180; i++) {
       ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2);
@@ -257,32 +256,31 @@
     ctx.strokeRect(28, 28, w - 56, h - 56);
 
     ctx.fillStyle = archetype.color;
-    ctx.font = "20px 'Press Start 2P', monospace";
-    ctx.fillText("MEMORY FRAGMENT", 56, 90);
+    ctx.font = "18px 'Press Start 2P', monospace";
+    ctx.fillText("MEMORY FRAGMENT", 56, 86);
 
     ctx.fillStyle = "#8b97a8";
-    ctx.font = "16px 'Press Start 2P', monospace";
-    ctx.fillText(serial, 56, 130);
+    ctx.font = "14px 'Press Start 2P', monospace";
+    ctx.fillText(serial, 56, 122);
 
-    // character block
     const sprite = document.createElement("canvas");
     drawScene("return", sprite);
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(sprite, 150, 180, 260, 210);
+    ctx.drawImage(sprite, 168, 150, 224, 184);
 
     ctx.fillStyle = "#eef3f8";
-    ctx.font = "22px 'Press Start 2P', monospace";
-    wrapText(ctx, archetype.name, 56, 440, w - 112, 34);
+    ctx.font = "20px 'Press Start 2P', monospace";
+    const nameBottom = wrapText(ctx, archetype.name, 56, 380, w - 112, 32);
 
     ctx.fillStyle = "#c4cfdb";
-    ctx.font = "28px 'Space Grotesk', sans-serif";
-    wrapText(ctx, archetype.lore, 56, 530, w - 112, 36);
+    ctx.font = "26px 'Space Grotesk', sans-serif";
+    wrapText(ctx, archetype.lore, 56, nameBottom + 36, w - 112, 34);
 
     ctx.fillStyle = archetype.color;
-    ctx.font = "14px 'Press Start 2P', monospace";
-    ctx.fillText("UNOFFICIAL FAN CARD", 56, 680);
+    ctx.font = "13px 'Press Start 2P', monospace";
+    ctx.fillText("UNOFFICIAL FAN CARD", 56, 760);
     ctx.fillStyle = "#8b97a8";
-    ctx.fillText("@nullsxyz · press start", 56, 710);
+    ctx.fillText("@nullsxyz · press start", 56, 792);
   }
 
   function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
@@ -299,7 +297,11 @@
         line = test;
       }
     }
-    if (line) ctx.fillText(line, x, yy);
+    if (line) {
+      ctx.fillText(line, x, yy);
+      return yy;
+    }
+    return y;
   }
 
   function shareText(archetype, serial) {

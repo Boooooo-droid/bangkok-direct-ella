@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>NULL RUN · unofficial fan parkour</title>
+  <meta name="description" content="Vector-style Nulls parkour. Pick a silhouette, auto-run, dodge STATIC, share your score. Unofficial fan game." />
+  <meta name="theme-color" content="#05060a" />
+  <meta property="og:title" content="NULL RUN" />
+  <meta property="og:description" content="Press play. Auto-run. Score until you die." />
+  <link rel="icon" href="assets/official/bomb-logo.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div id="boot" class="boot">
+    <img src="assets/official/nulls-wordmark.png" alt="nulls" class="boot-logo" />
+    <p>loading crew…</p>
+    <div class="boot-bar"><i id="boot-fill"></i></div>
+  </div>
+
+  <main class="shell" id="shell" hidden>
+    <p class="disclaimer">unofficial fan game · not affiliated with nullsxyz · no login required</p>
+    <div class="stage">
+      <canvas id="game" width="420" height="740" aria-label="NULL RUN parkour game"></canvas>
+      <div id="hud" class="hud hidden">
+        <div class="hud-left">
+          <span id="hud-name">SPIKE</span>
+          <span id="hud-score">0</span>
+        </div>
+        <div class="hud-right">
+          <span id="hud-dist">0m</span>
+        </div>
+      </div>
+      <div id="touch" class="touch hidden" aria-label="Touch controls">
+        <button type="button" id="btn-slide" class="tbtn">SLIDE</button>
+        <button type="button" id="btn-jump" class="tbtn primary">JUMP</button>
+      </div>
+    </div>
+    <p class="controls-hint">JUMP · space / tap up · SLIDE · down / S · auto-run like Vector</p>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>

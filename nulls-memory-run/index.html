@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>BOOT · CORRUPTED SAVE — unofficial nulls fan experience</title>
+  <meta name="description" content="Unofficial fan experience inspired by nulls. Boot an old console, recover a corrupted save, leave with your own memory fragment." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div id="flash" class="flash" aria-hidden="true"></div>
+
+  <main class="shell">
+    <p class="disclaimer">unofficial fan build · not affiliated with nullsxyz</p>
+
+    <section id="device" class="device" aria-live="polite">
+      <div class="device-bezel">
+        <div class="device-screen" id="screen">
+          <!-- screens injected by JS -->
+        </div>
+        <div class="device-chin">
+          <span class="led" id="led"></span>
+          <span class="brand">NULL·FAN</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <p>
+        Tribute for
+        <a href="https://x.com/nullsxyz" target="_blank" rel="noopener noreferrer">@nullsxyz</a>
+        · real list:
+        <a href="https://nulls.world/apply" target="_blank" rel="noopener noreferrer">nulls.world/apply</a>
+      </p>
+      <p class="fine">This does not grant official whitelist. It’s a shareable memory toy.</p>
+    </footer>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>

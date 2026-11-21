@@ -42,19 +42,15 @@
     cardRed: "assets/official/red.webp",
     cardGreen: "assets/official/green.webp",
     feather: "assets/official/pu-feather.webp",
-    silSpike: "assets/official/spike.png",
-    silShadow: "assets/official/shadow.png",
-    silAstro: "assets/official/astro.png",
-    silCrown: "assets/official/crown.png",
-    silDemon: "assets/official/demon.png",
   };
 
+  // Zilkroad Bros–inspired colorful crew (fan redraw, not B&W silhouettes)
   const CREW = [
-    { id: "spike", name: "SPIKE", sil: "silSpike", accent: "#5de4ff", jumpMul: 1.08, scoreMul: 1.0, slideMul: 1.0 },
-    { id: "shadow", name: "SHADOW", sil: "silShadow", accent: "#9aa7ff", jumpMul: 1.0, scoreMul: 1.15, slideMul: 1.05 },
-    { id: "astro", name: "ASTRO", sil: "silAstro", accent: "#7dffb2", jumpMul: 1.0, scoreMul: 1.0, slideMul: 1.12 },
-    { id: "crown", name: "CROWN", sil: "silCrown", accent: "#ffd27a", jumpMul: 1.04, scoreMul: 1.08, slideMul: 1.0 },
-    { id: "demon", name: "DEMON", sil: "silDemon", accent: "#ff7aa2", jumpMul: 1.12, scoreMul: 1.05, slideMul: 0.95 },
+    { id: "spike", name: "SPIKE", no: "01", accent: "#c45b6a", jumpMul: 1.08, scoreMul: 1.0, slideMul: 1.0 },
+    { id: "goggles", name: "GOGGLES", no: "02", accent: "#ff8a3d", jumpMul: 1.0, scoreMul: 1.15, slideMul: 1.05 },
+    { id: "visor", name: "VISOR", no: "03", accent: "#5de4ff", jumpMul: 1.0, scoreMul: 1.0, slideMul: 1.12 },
+    { id: "beats", name: "BEATS", no: "04", accent: "#ff5d7a", jumpMul: 1.04, scoreMul: 1.08, slideMul: 1.0 },
+    { id: "blaze", name: "BLAZE", no: "05", accent: "#7dff6a", jumpMul: 1.12, scoreMul: 1.05, slideMul: 0.95 },
   ];
 
   const imgs = {};
@@ -463,27 +459,251 @@
     ctx.drawImage(img, x, y, w, h);
   }
 
-  const silCache = new Map();
-  function drawSilhouette(img, x, y, w, h, color) {
-    if (!img) {
-      ctx.fillStyle = color || "#fff";
-      ctx.fillRect(x + w * 0.25, y + h * 0.15, w * 0.5, h * 0.7);
-      return;
+  /** Full-body colorful crew (Zilkroad Bros–inspired fan art). unit = scale. */
+  function drawCrewBody(id, x, y, scale, opts) {
+    opts = opts || {};
+    const phase = opts.phase || 0;
+    const sliding = !!opts.sliding;
+    const s = scale;
+    const swing = sliding ? 0 : Math.sin(phase) * 0.35;
+    const bob = sliding ? 0 : Math.sin(phase) * 1.5;
+
+    ctx.save();
+    ctx.translate(x, y + bob);
+    if (sliding) {
+      ctx.translate(s * 0.2, s * 0.55);
+      ctx.rotate(-0.7);
+      ctx.translate(-s * 0.2, -s * 0.35);
     }
-    const key = `${img.src}|${w | 0}x${h | 0}|${color || "#e8eef6"}`;
-    let off = silCache.get(key);
-    if (!off) {
-      off = document.createElement("canvas");
-      off.width = Math.max(1, w | 0);
-      off.height = Math.max(1, h | 0);
-      const o = off.getContext("2d");
-      o.drawImage(img, 0, 0, off.width, off.height);
-      o.globalCompositeOperation = "source-in";
-      o.fillStyle = color || "#e8eef6";
-      o.fillRect(0, 0, off.width, off.height);
-      silCache.set(key, off);
+
+    const skin = "#1a1a1a";
+    const legL = sliding ? 0 : swing;
+    const legR = sliding ? 0 : -swing;
+    const armL = sliding ? 0.8 : -swing;
+    const armR = sliding ? 0.8 : swing;
+
+    // legs
+    ctx.strokeStyle = skin;
+    ctx.lineWidth = Math.max(2, s * 0.08);
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(s * 0.38, s * 0.62);
+    ctx.lineTo(s * (0.32 + legL * 0.12), s * 0.92);
+    ctx.moveTo(s * 0.55, s * 0.62);
+    ctx.lineTo(s * (0.58 + legR * 0.12), s * 0.92);
+    ctx.stroke();
+    // shoes
+    ctx.fillStyle = "#f2f2f2";
+    ctx.fillRect(s * (0.24 + legL * 0.12), s * 0.9, s * 0.16, s * 0.07);
+    ctx.fillRect(s * (0.5 + legR * 0.12), s * 0.9, s * 0.16, s * 0.07);
+
+    // hoodie body colors per id
+    let hoodie = "#6b3a45";
+    let pants = "#3a5f9a";
+    let accent = "#5de4ff";
+    if (id === "spike") {
+      hoodie = "#8a3d4d";
+      pants = "#3d6aa8";
+      accent = "#c45b6a";
+    } else if (id === "goggles") {
+      hoodie = "#6a4530";
+      pants = "#2c2c2c";
+      accent = "#ff8a3d";
+    } else if (id === "visor") {
+      hoodie = "#243a6b";
+      pants = "#1a1a28";
+      accent = "#5de4ff";
+    } else if (id === "beats") {
+      hoodie = "#e8d8c4";
+      pants = "#3d6aa8";
+      accent = "#ff5d7a";
+    } else if (id === "blaze") {
+      hoodie = "#1c1c1c";
+      pants = "#2a2a2a";
+      accent = "#7dff6a";
     }
-    ctx.drawImage(off, x, y);
+
+    // pants block
+    ctx.fillStyle = pants;
+    ctx.fillRect(s * 0.32, s * 0.55, s * 0.3, s * 0.14);
+
+    // arms
+    ctx.strokeStyle = hoodie;
+    ctx.lineWidth = Math.max(3, s * 0.1);
+    ctx.beginPath();
+    ctx.moveTo(s * 0.28, s * 0.34);
+    ctx.lineTo(s * (0.12 + armL * 0.08), s * (0.52 + Math.abs(armL) * 0.05));
+    ctx.moveTo(s * 0.66, s * 0.34);
+    ctx.lineTo(s * (0.82 + armR * 0.08), s * (0.52 + Math.abs(armR) * 0.05));
+    ctx.stroke();
+
+    // hoodie torso
+    ctx.fillStyle = hoodie;
+    roundRect(s * 0.28, s * 0.28, s * 0.38, s * 0.32, s * 0.06);
+    ctx.fill();
+
+    // visor sash / pocket / collar details
+    if (id === "visor") {
+      ctx.strokeStyle = "#a855f7";
+      ctx.lineWidth = Math.max(2, s * 0.05);
+      ctx.beginPath();
+      ctx.moveTo(s * 0.3, s * 0.32);
+      ctx.lineTo(s * 0.62, s * 0.55);
+      ctx.stroke();
+      ctx.strokeStyle = "#f5d76e";
+      ctx.beginPath();
+      ctx.moveTo(s * 0.32, s * 0.34);
+      ctx.lineTo(s * 0.6, s * 0.54);
+      ctx.stroke();
+    }
+    if (id === "beats") {
+      ctx.fillStyle = "#ff5d7a";
+      roundRect(s * 0.42, s * 0.4, s * 0.1, s * 0.08, 2);
+      ctx.fill();
+    }
+    if (id === "blaze") {
+      ctx.fillStyle = "#ff8a3d";
+      roundRect(s * 0.3, s * 0.28, s * 0.34, s * 0.08, 3);
+      ctx.fill();
+      // flame trail
+      ctx.fillStyle = "#ff5d1a";
+      ctx.beginPath();
+      ctx.moveTo(s * 0.08, s * 0.18);
+      ctx.lineTo(s * 0.28, s * 0.22);
+      ctx.lineTo(s * 0.12, s * 0.34);
+      ctx.lineTo(s * 0.02, s * 0.28);
+      ctx.fill();
+      ctx.fillStyle = "#ffd27a";
+      ctx.beginPath();
+      ctx.moveTo(s * 0.1, s * 0.2);
+      ctx.lineTo(s * 0.22, s * 0.23);
+      ctx.lineTo(s * 0.12, s * 0.3);
+      ctx.fill();
+    }
+
+    // head
+    ctx.fillStyle = skin;
+    ctx.beginPath();
+    ctx.arc(s * 0.47, s * 0.18, s * 0.14, 0, Math.PI * 2);
+    ctx.fill();
+
+    // hair / ears / accessories
+    if (id === "spike") {
+      ctx.fillStyle = "#111";
+      for (let i = 0; i < 5; i++) {
+        const a = -0.9 + i * 0.35;
+        ctx.beginPath();
+        ctx.moveTo(s * 0.47, s * 0.12);
+        ctx.lineTo(s * (0.47 + Math.cos(a) * 0.22), s * (0.12 + Math.sin(a) * 0.22));
+        ctx.lineTo(s * (0.47 + Math.cos(a + 0.2) * 0.1), s * 0.14);
+        ctx.fill();
+      }
+      // X eyes
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = Math.max(2, s * 0.035);
+      ctx.beginPath();
+      ctx.moveTo(s * 0.4, s * 0.15);
+      ctx.lineTo(s * 0.46, s * 0.2);
+      ctx.moveTo(s * 0.46, s * 0.15);
+      ctx.lineTo(s * 0.4, s * 0.2);
+      ctx.moveTo(s * 0.5, s * 0.15);
+      ctx.lineTo(s * 0.56, s * 0.2);
+      ctx.moveTo(s * 0.56, s * 0.15);
+      ctx.lineTo(s * 0.5, s * 0.2);
+      ctx.stroke();
+    } else if (id === "goggles") {
+      // cat ears
+      ctx.fillStyle = "#111";
+      ctx.beginPath();
+      ctx.moveTo(s * 0.34, s * 0.12);
+      ctx.lineTo(s * 0.38, s * 0.02);
+      ctx.lineTo(s * 0.42, s * 0.12);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(s * 0.52, s * 0.12);
+      ctx.lineTo(s * 0.56, s * 0.02);
+      ctx.lineTo(s * 0.6, s * 0.12);
+      ctx.fill();
+      // orange goggles
+      ctx.fillStyle = "#ff8a3d";
+      ctx.beginPath();
+      ctx.arc(s * 0.4, s * 0.18, s * 0.07, 0, Math.PI * 2);
+      ctx.arc(s * 0.54, s * 0.18, s * 0.07, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#ffd7a8";
+      ctx.beginPath();
+      ctx.arc(s * 0.4, s * 0.18, s * 0.045, 0, Math.PI * 2);
+      ctx.arc(s * 0.54, s * 0.18, s * 0.045, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#ff8a3d";
+      ctx.fillRect(s * 0.4, s * 0.16, s * 0.14, s * 0.03);
+    } else if (id === "visor") {
+      ctx.fillStyle = "#111";
+      ctx.beginPath();
+      ctx.moveTo(s * 0.34, s * 0.12);
+      ctx.lineTo(s * 0.38, s * 0.02);
+      ctx.lineTo(s * 0.42, s * 0.12);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(s * 0.52, s * 0.12);
+      ctx.lineTo(s * 0.56, s * 0.02);
+      ctx.lineTo(s * 0.6, s * 0.12);
+      ctx.fill();
+      // futuristic visor
+      const vg = ctx.createLinearGradient(s * 0.32, s * 0.14, s * 0.62, s * 0.22);
+      vg.addColorStop(0, "#5de4ff");
+      vg.addColorStop(0.5, "#a855f7");
+      vg.addColorStop(1, "#3b82f6");
+      ctx.fillStyle = vg;
+      roundRect(s * 0.33, s * 0.14, s * 0.28, s * 0.09, s * 0.03);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.fillRect(s * 0.36, s * 0.16, s * 0.08, s * 0.025);
+    } else if (id === "beats") {
+      // red headphones
+      ctx.strokeStyle = "#ff3b4a";
+      ctx.lineWidth = Math.max(3, s * 0.08);
+      ctx.beginPath();
+      ctx.arc(s * 0.47, s * 0.16, s * 0.16, Math.PI * 1.1, Math.PI * 1.9);
+      ctx.stroke();
+      ctx.fillStyle = "#ff3b4a";
+      roundRect(s * 0.3, s * 0.12, s * 0.08, s * 0.14, 3);
+      ctx.fill();
+      roundRect(s * 0.56, s * 0.12, s * 0.08, s * 0.14, 3);
+      ctx.fill();
+      // slanted eyes
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.moveTo(s * 0.4, s * 0.17);
+      ctx.lineTo(s * 0.46, s * 0.15);
+      ctx.lineTo(s * 0.46, s * 0.2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(s * 0.5, s * 0.15);
+      ctx.lineTo(s * 0.56, s * 0.17);
+      ctx.lineTo(s * 0.5, s * 0.2);
+      ctx.fill();
+    } else if (id === "blaze") {
+      // green visor
+      ctx.fillStyle = "#7dff6a";
+      roundRect(s * 0.34, s * 0.14, s * 0.26, s * 0.09, 3);
+      ctx.fill();
+      ctx.fillStyle = "#052010";
+      ctx.fillRect(s * 0.38, s * 0.16, s * 0.06, s * 0.05);
+      ctx.fillRect(s * 0.5, s * 0.16, s * 0.06, s * 0.05);
+      ctx.fillStyle = "#b8ff9a";
+      ctx.fillRect(s * 0.34, s * 0.14, s * 0.26, s * 0.02);
+    }
+
+    // soft accent glow
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.arc(s * 0.47, s * 0.4, s * 0.28, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    ctx.restore();
   }
 
   function roundRect(x, y, w, h, r) {
@@ -638,43 +858,17 @@
     const c = player.crew;
     const x = player.x - sx;
     const y = player.y;
-    const sil = imgs[c.sil];
 
     // shadow
     ctx.fillStyle = "rgba(0,0,0,0.35)";
     ctx.beginPath();
-    ctx.ellipse(x + 22, GROUND_Y + 6, player.sliding ? 28 : 18, 6, 0, 0, Math.PI * 2);
+    ctx.ellipse(x + 26, GROUND_Y + 6, player.sliding ? 30 : 20, 6, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.save();
-    if (player.sliding) {
-      ctx.translate(x + 10, y + 38);
-      ctx.rotate(-0.55);
-      drawSilhouette(sil, -10, -40, 56, 56, "#f4f7fb");
-    } else {
-      const bob = player.onGround ? Math.sin(player.runPhase) * 2 : 0;
-      drawSilhouette(sil, x - 4, y - 8 + bob, 56, 56, "#f4f7fb");
-      if (player.onGround) {
-        ctx.strokeStyle = "rgba(255,255,255,0.28)";
-        ctx.lineWidth = 2;
-        const swing = Math.sin(player.runPhase) * 10;
-        ctx.beginPath();
-        ctx.moveTo(x + 20, y + 52);
-        ctx.lineTo(x + 20 - swing, y + 70);
-        ctx.moveTo(x + 28, y + 52);
-        ctx.lineTo(x + 28 + swing, y + 70);
-        ctx.stroke();
-      }
-    }
-    ctx.restore();
-
-    // accent glow
-    ctx.fillStyle = c.accent;
-    ctx.globalAlpha = 0.15;
-    ctx.beginPath();
-    ctx.arc(x + 22, y + 24, 28, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
+    drawCrewBody(c.id, x - 4, y - 6, 78, {
+      phase: player.runPhase,
+      sliding: player.sliding,
+    });
   }
 
   function drawStatic(sx) {
@@ -735,41 +929,41 @@
     ctx.font = "10px Press Start 2P";
     ctx.fillText("SELECT CREW", 120, 195);
 
-    const cardW = 60;
-    const gap = 12;
+    const cardW = 64;
+    const gap = 10;
     const total = CREW.length * cardW + (CREW.length - 1) * gap;
     let x0 = (W - total) / 2;
     CREW.forEach((c, i) => {
       const x = x0 + i * (cardW + gap);
-      const y = 220;
+      const y = 210;
       const sel = i === selected;
       ctx.fillStyle = sel ? "rgba(93,228,255,0.15)" : "rgba(255,255,255,0.04)";
-      roundRect(x, y, cardW, 90, 12);
+      roundRect(x, y, cardW, 110, 12);
       ctx.fill();
       ctx.strokeStyle = sel ? c.accent : "rgba(255,255,255,0.1)";
       ctx.lineWidth = sel ? 2 : 1;
       ctx.stroke();
-      drawSilhouette(imgs[c.sil], x + 6, y + 8, 48, 48, sel ? "#f4f7fb" : "#9aa7b8");
+      drawCrewBody(c.id, x + 4, y + 4, 56, { phase: menuPulse * 3 + i });
       ctx.fillStyle = sel ? c.accent : "#9aa7b8";
       ctx.font = "6px Press Start 2P";
-      ctx.fillText(c.name.slice(0, 6), x + 6, y + 78);
+      ctx.fillText(c.no, x + 22, y + 100);
     });
 
     const c = CREW[selected];
     ctx.fillStyle = "#c4cfdb";
     ctx.font = "12px Space Grotesk";
     ctx.textAlign = "center";
-    ctx.fillText(`${c.name} · jump ${c.jumpMul.toFixed(2)}x · score ${c.scoreMul.toFixed(2)}x`, W / 2, 340);
-    ctx.fillText("Auto-run parkour · dodge STATIC · grab memory cards", W / 2, 362);
+    ctx.fillText(`${c.no} ${c.name} · jump ${c.jumpMul.toFixed(2)}x · score ${c.scoreMul.toFixed(2)}x`, W / 2, 345);
+    ctx.fillText("Auto-run parkour · dodge STATIC · grab memory cards", W / 2, 365);
     ctx.textAlign = "left";
 
     const bob = Math.sin(menuPulse * 2) * 6;
-    drawSilhouette(imgs[c.sil], W / 2 - 70, 380 + bob, 140, 140, "#f4f7fb");
+    drawCrewBody(c.id, W / 2 - 70, 375 + bob, 150, { phase: menuPulse * 4 });
 
     // play button
     const pulse = 1 + Math.sin(menuPulse * 4) * 0.02;
     ctx.save();
-    ctx.translate(W / 2, 560);
+    ctx.translate(W / 2, 575);
     ctx.scale(pulse, pulse);
     roundRect(-110, -24, 220, 48, 16);
     const pg = ctx.createLinearGradient(-110, -24, 110, 24);
@@ -787,8 +981,8 @@
     ctx.fillStyle = "#8b97a8";
     ctx.font = "11px Space Grotesk";
     ctx.textAlign = "center";
-    ctx.fillText("← → change crew · Enter / tap PLAY", W / 2, 610);
-    ctx.fillText(`best ${best || 0}`, W / 2, 632);
+    ctx.fillText("← → change crew · Enter / tap PLAY", W / 2, 625);
+    ctx.fillText(`best ${best || 0}`, W / 2, 646);
     ctx.textAlign = "left";
 
     if (imgs.cartridge) drawImageCover(imgs.cartridge, 20, 640, 50, 60);
@@ -816,11 +1010,11 @@
     ctx.fillText("RUN OVER", W / 2, 205);
 
     const c = CREW[selected];
-    drawSilhouette(imgs[c.sil], W / 2 - 50, 220, 100, 100, "#f4f7fb");
+    drawCrewBody(c.id, W / 2 - 55, 215, 120, { phase: 0 });
 
     ctx.fillStyle = c.accent;
     ctx.font = "10px Press Start 2P";
-    ctx.fillText(c.name, W / 2, 340);
+    ctx.fillText(`${c.no} ${c.name}`, W / 2, 355);
     ctx.fillStyle = "#5de4ff";
     ctx.font = "14px Press Start 2P";
     ctx.fillText(String(Math.floor(score)), W / 2, 375);
@@ -898,20 +1092,20 @@
 
   function hitTestMenu(mx, my) {
     // crew cards
-    const cardW = 60;
-    const gap = 12;
+    const cardW = 64;
+    const gap = 10;
     const total = CREW.length * cardW + (CREW.length - 1) * gap;
     let x0 = (W - total) / 2;
     for (let i = 0; i < CREW.length; i++) {
       const x = x0 + i * (cardW + gap);
-      const y = 220;
-      if (mx >= x && mx <= x + cardW && my >= y && my <= y + 90) {
+      const y = 210;
+      if (mx >= x && mx <= x + cardW && my >= y && my <= y + 110) {
         selected = i;
         return "crew";
       }
     }
     // play (generous hitbox)
-    if (mx >= W / 2 - 130 && mx <= W / 2 + 130 && my >= 520 && my <= 600) return "play";
+    if (mx >= W / 2 - 130 && mx <= W / 2 + 130 && my >= 540 && my <= 620) return "play";
     return null;
   }
 
